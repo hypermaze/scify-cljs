@@ -3,20 +3,59 @@
    [re-frame.core :as re-frame]
    [re-com.core :as re-com]
    [scify-clj.subs :as subs]
-   ))
+   [testdouble.cljs.csv :as csv]
+   )
+  (:require-macros [scify-clj.slurp :refer [slurp]]))
 
 
 ;; home
+(def data
+  (csv/read-csv (slurp "/Users/ricomeinl/IdeaProjects/scify-demo/public/data/fibromyalgia02102020.csv"))
+  )
+
+(defn slider [param value min max invalidates]
+  [:div
+   [:input {:type "range" :value value :min min :max max
+           :style {:width "100%"}
+           :on-change ( #(print "slider") )}]])
+
+(defn diplay-item [item]
+  [:div
+     [:div.sentence
+      (str (item 0))]
+     [:div
+      [:p [:a.article-link {:href (str (item 2))
+                            :target "_blank"} (str (item 1))]]]
+     [:div
+      [:input.button {:type "button" :value "More like this ✅"
+                 :on-click ( #(print "Positive") ) }]
+      [:input.button {:type "button" :value "Fewer like this \uD83D\uDEAB"
+                      :on-click ( #(print "Negative") ) }]
+      [slider 1 1 5]]
+     [:div.sentence
+      (str (item 3))]
+     [:div.border]
+   ]
+
+  )
+
+(defn table []
+  [:div
+   (map (fn [row]
+            (diplay-item (data row))
+          )(range 1 5))
+   ]
+  )
 
 (defn home-title []
   (let [name (re-frame/subscribe [::subs/name])]
     [re-com/title
-     :label (str "Hello from " @name ". This is the Home Page.")
+     :label (str "Literature Research Tool \uD83C\uDF93\uD83E\uDDEC")
      :level :level1]))
 
 (defn link-to-about-page []
   [re-com/hyperlink-href
-   :label "go to About Page"
+   :label "About"
    :href "#/about"])
 
 (defn home-panel []
@@ -24,6 +63,7 @@
    :gap "1em"
    :children [[home-title]
               [link-to-about-page]
+              [table]
               ]])
 
 
@@ -36,7 +76,7 @@
 
 (defn link-to-home-page []
   [re-com/hyperlink-href
-   :label "go to Home Page"
+   :label "Home"
    :href "#/"])
 
 (defn about-panel []

@@ -11,7 +11,8 @@
                  [re-com "2.9.0"]
                  [clj-commons/secretary "1.2.4"]
                  [garden "1.3.10"]
-                 [ns-tracker "0.4.0"]]
+                 [ns-tracker "0.4.0"]
+                 [testdouble/clojurescript.csv "0.4.5"]]
 
   :plugins [[lein-shadow "0.3.1"]
             [lein-garden "0.3.0"]
