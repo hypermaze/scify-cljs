@@ -56,6 +56,26 @@
                  :cleaned_sentence_text	9
                  :sentence_html 10})
 
+(defn get-cell [df row-idx column-key]
+  (def column-map {:sentence_text 0
+                   :title 1
+                   :article_link 2
+                   :paragraph_text	3
+                   :PMID	4
+                   :DateCompleted 5
+                   :ChemicalList 6
+                   :AbstractText 7
+                   :PubDate 8
+                   :cleaned_sentence_text	9
+                   :sentence_html 10})
+  (
+   (-> row-idx df vec) 
+   ;=> row
+   (column-key column-map)
+   ;=> cell
+   )
+  )
+
 (defn display-item [item]
   [:div
    [:div.sentence
