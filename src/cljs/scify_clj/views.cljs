@@ -4,13 +4,15 @@
    [re-com.core :as re-com]
    [scify-clj.subs :as subs]
    [testdouble.cljs.csv :as csv]
+   [ajax.core :refer [GET POST]]
    )
   (:require-macros [scify-clj.slurp :refer [slurp]]))
 
 
 ;; home
+;; TODO require fastapi 3x rows in spreadsheet
 (def data
-  (csv/read-csv (slurp "/Users/ricomeinl/IdeaProjects/scify-demo/public/data/fibromyalgia02102020.csv"))
+  (csv/read-csv (slurp "/Users/markus/Projects/scify-cljs/resources/data/fibromyalgia02102020.csv"))
   )
 
 (defn slider [param value min max invalidates]
@@ -19,22 +21,42 @@
            :style {:width "100%"}
            :on-change ( #(print "slider") )}]])
 
+
+(defn handler [response]
+  (.log js/console (str response)))
+
+(defn error-handler [{:keys [status status-text]}]
+  (.log js/console (str "something bad happened: " status " " status-text)))
+
+(defn buy-button []
+  [:button
+   {:on-click (fn [e]
+                (.preventDefault e)
+                (GET (str "http://127.0.0.1:8000/")
+                           {:handler handler
+                            :error-handler error-handler
+                            }
+                  ))}
+   "Buy"])
+
+
 (defn diplay-item [item]
   [:div
-     [:div.sentence
-      (str (item 0))]
-     [:div
-      [:p [:a.article-link {:href (str (item 2))
-                            :target "_blank"} (str (item 1))]]]
-     [:div
-      [:input.button {:type "button" :value "More like this ✅"
-                 :on-click ( #(print "Positive") ) }]
-      [:input.button {:type "button" :value "Fewer like this \uD83D\uDEAB"
-                      :on-click ( #(print "Negative") ) }]
-      [slider 1 1 5]]
-     [:div.sentence
-      (str (item 3))]
-     [:div.border]
+   [:div.sentence
+    (str (item 0))]
+   [:div
+    [:p [:a.article-link {:href (str (item 2))
+                          :target "_blank"} (str (item 1))]]]
+   [:div
+    [:input.button {:type "buctton" :value "More like this ✅"
+                    :on-click ( #(print "Positive") ) }]
+    [:input.button {:type "button" :value "Fewer like this \uD83D\uDEAB"
+                    :on-click ( #(print "Negative") ) }]
+    [slider 1 1 5]]
+   [:div.sentence
+    (str (item 3))]
+   [:div.border]
+   [buy-button]
    ]
 
   )
