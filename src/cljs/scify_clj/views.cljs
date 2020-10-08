@@ -28,15 +28,18 @@
 (defn error-handler [{:keys [status status-text]}]
   (.log js/console (str "something bad happened: " status " " status-text)))
 
-(defn buy-button []
-  [:button
-   {:on-click (fn [e]
-                (.preventDefault e)
+
+(defn fastapi-test [e]
+  (.preventDefault e)
                 (GET (str "http://127.0.0.1:8000/")
                            {:handler handler
                             :error-handler error-handler
                             }
-                  ))}
+                  ))
+
+(defn buy-button []
+  [:button
+   {:on-click fastapi-test}
    "Buy"])
 
 
