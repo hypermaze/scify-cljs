@@ -4,22 +4,22 @@
    [re-com.core :as re-com]
    [scify-clj.subs :as subs]
    [testdouble.cljs.csv :as csv]
-   [ajax.core :refer [GET POST]]
-   )
+   [ajax.core :refer [GET POST]])
   (:require-macros [scify-clj.slurp :refer [slurp]]))
+
+; (use 'scify-clj :reload)
 
 
 ;; home
 ;; TODO require fastapi 3x rows in spreadsheet
 (def data
-  (csv/read-csv (slurp "/Users/markus/Projects/scify-cljs/resources/data/fibromyalgia02102020.csv"))
-  )
+  (csv/read-csv (slurp "/Users/markus/Projects/hypermaze/frontend/resources/data/fibromyalgia02102020.csv")))
 
 (defn slider [param value min max invalidates]
   [:div
    [:input {:type "range" :value value :min min :max max
-           :style {:width "100%"}
-           :on-change ( #(print "slider") )}]])
+            :style {:width "100%"}
+            :on-change (#(print "slider"))}]])
 
 
 (defn handler [response]
@@ -31,19 +31,32 @@
 
 (defn fastapi-test [e]
   (.preventDefault e)
-                (GET (str "http://127.0.0.1:8000/")
-                           {:handler handler
-                            :error-handler error-handler
-                            }
-                  ))
+  (GET (str "http://127.0.0.1:8000/")
+    {:handler handler
+     :error-handler error-handler}))
 
 (defn buy-button []
   [:button
    {:on-click fastapi-test}
    "Buy"])
 
+(defn button [val & f]
+  [:input.button {:type "button" :value val
+                  :on-click f}])
 
-(defn diplay-item [item]
+(def column-map {:sentence_text 0
+                 :title 1
+                 :article_link 2
+                 :paragraph_text	3
+                 :PMID	4
+                 :DateCompleted 5
+                 :ChemicalList 6
+                 :AbstractText 7
+                 :PubDate 8
+                 :cleaned_sentence_text	9
+                 :sentence_html 10})
+
+(defn display-item [item]
   [:div
    [:div.sentence
     (str (item 0))]
@@ -51,26 +64,27 @@
     [:p [:a.article-link {:href (str (item 2))
                           :target "_blank"} (str (item 1))]]]
    [:div
-    [:input.button {:type "buctton" :value "More like this ✅"
-                    :on-click ( #(print "Positive") ) }]
-    [:input.button {:type "button" :value "Fewer like this \uD83D\uDEAB"
-                    :on-click ( #(print "Negative") ) }]
+    (button "🔝 more of this")
+    (button "Not sure about this one")
+    (button "⬇ less of this")
     [slider 1 1 5]]
    [:div.sentence
     (str (item 3))]
    [:div.border]
-   [buy-button]
-   ]
+   [buy-button]])
 
-  )
 
-(defn table []
-  [:div
-   (map (fn [row]
-            (diplay-item (data row))
-          )(range 1 5))
-   ]
-  )
+(def example-item [:div "example sent"])
+(def example-row [:div  (str (data 1))])
+
+
+; (defn table []
+;   [:div
+;    (map (fn [row]
+;             (diplay-item (data row))
+;           )(range 1 5))
+;    ]
+;   )
 
 (defn home-title []
   (let [name (re-frame/subscribe [::subs/name])]
@@ -88,8 +102,7 @@
    :gap "1em"
    :children [[home-title]
               [link-to-about-page]
-              [table]
-              ]])
+              example-row]])
 
 
 ;; about
